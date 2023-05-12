@@ -15,6 +15,8 @@ class PaymentInline(admin.TabularInline):
 
 
 class PatientAdmin(admin.ModelAdmin):
+    search_fields = ('first_name', "last_name")
+    list_display = ['__str__', 'sickness', 'doctor', 'nurse', 'debt', 'paid', 'login_at', 'bed']
     fields = [
         'first_name',
         'last_name',
@@ -35,20 +37,12 @@ class PatientAdmin(admin.ModelAdmin):
     ]
 
     def get_fields(self, request, obj=None):
-        if request.user.groups.filter(name='Doctors') or request.user.groups.filter(name='Nurses'):
-            if 'national_id' in self.fields:
-                self.fields.remove('national_id')
-            if 'phone_number' in self.fields:
-                self.fields.remove('phone_number')
-            if 'address' in self.fields:
-                self.fields.remove('address')
+        if request.user.groups.filter(name__in=['Doctors', 'Nurses']):
+            self.fields = [field for field in self.fields if field not in ['national_id', 'phone_number', 'address']]
+            self.list_display = [display for display in self.list_display if
+                                 display not in ['debt', 'paid', 'login_at']]
 
         return super(PatientAdmin, self).get_fields(request, obj)
-
-    def bed(self, obj):
-        return f"{obj.bed}"
-
-    bed.short_doctor_order = 'Bed'
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = ['first_name',
@@ -66,7 +60,7 @@ class PatientAdmin(admin.ModelAdmin):
                            'nurse',
                            ]
         if request.user.is_superuser:
-            readonly_fields = []
+            return []
         else:
             user_groups = request.user.groups.values_list('name', flat=True)
             if 'Doctors' in user_groups or 'Nurses' in user_groups:
@@ -79,13 +73,16 @@ class PatientAdmin(admin.ModelAdmin):
             if 'Nurses' in user_groups:
                 readonly_fields.remove('nurse_report')
             if 'Managers' in user_groups:
-                readonly_fields.remove('first_name')
-                readonly_fields.remove('last_name')
-                readonly_fields.remove('insurance_type')
-                readonly_fields.remove('watchful_name')
-                readonly_fields.remove('age')
-                readonly_fields.remove('doctor')
-                readonly_fields.remove('nurse')
+                readonly_fields = [
+                    field for field in readonly_fields
+                    if field not in [
+                        'first_name',
+                        'last_name',
+                        'insurance_type',
+                        'watchful_name',
+                        'age',
+                        'doctor',
+                        'nurse']]
         return readonly_fields
 
     inlines = [
@@ -108,10 +105,6 @@ class PatientAdmin(admin.ModelAdmin):
 
     paid.short_description = 'Paid'
     paid.allow_tag = True
-
-    search_fields = ('first_name', "last_name")
-
-    list_display = ('__str__', 'sickness', 'doctor', 'nurse', 'debt', 'paid', 'login_at', 'bed')
 
 
 class IsFilledFilter(admin.SimpleListFilter):
@@ -176,13 +169,6 @@ class PaymentAdmin(admin.ModelAdmin):
         ], }),)
 
     list_display = ('patient', 'title', 'cost', 'is_paid')
-    # list_display_links = ('patient', 'floor', 'room', 'bed', 'is_filled')
-    # list_filter = (IsFilledFilter,)
-
-    # def formfield_for_foreignkey(self, db_field, request, **kwargs):
-    #     if db_field.name == 'patient':
-    #         kwargs['queryset'] = Patient.objects.filter(bed__isnull=True)
-    #     return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 admin.site.register(Payment, PaymentAdmin)
