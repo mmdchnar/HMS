@@ -29,6 +29,19 @@ class PaymentInline(admin.TabularInline):
     extra = 0
 
 
+class CustomCheckboxInput(CheckboxInput):
+    def __init__(self, note=None, **kwargs):
+        self.note = note
+        super().__init__(**kwargs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        checkbox_html = super().render(name, value, attrs, renderer)
+        if self.note:
+            note_html = f'<span style="font-weight:bold; color:red;">{self.note}</span>'
+            return f'{note_html}  {checkbox_html}'
+        return checkbox_html
+
+
 class BedInline(admin.TabularInline):
     model = Bed
     extra = 0
@@ -80,6 +93,16 @@ class PatientAdmin(admin.ModelAdmin):
             return '-'
 
     custom_discharge_date.short_description = 'Discharge'
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+
+        if db_field.name == 'is_hospitalized':
+            formfield.widget = CustomCheckboxInput(
+                note='This action cannot be undone.     <br><br>\
+                If the patient does not make their payments, this cannot be done.<br><br>')
+
+        return formfield
 
     def has_change_permission(self, request, obj=None):
         if obj and not obj.is_hospitalized and not request.user.is_superuser:
