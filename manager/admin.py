@@ -1,7 +1,14 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Patient, Bed, Medicine, Payment
+from datetime import datetime
 from django.utils.translation import gettext_lazy as _
+from django.forms import CheckboxInput
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+from django.conf import settings
+from pytz import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class MedicineInline(admin.TabularInline):
