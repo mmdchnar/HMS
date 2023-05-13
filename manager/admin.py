@@ -171,6 +171,40 @@ class PaymentAdmin(admin.ModelAdmin):
     list_display = ('patient', 'title', 'cost', 'is_paid')
 
 
+class CustomUserAdmin(UserAdmin):
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser:
+            qs = qs.filter(id=request.user.id)
+        return qs
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = [
+            'group_permissions',
+            'groups',
+            'last_login',
+            'date_joined',
+            'is_superuser',
+            'is_active',
+            'is_staff',
+            'user_permissions',
+        ]
+        if request.user.is_superuser:
+            return []
+        elif request.user.groups.filter(name='Managers'):
+            readonly_fields.remove('is_active')
+            readonly_fields.remove('groups')
+        return readonly_fields
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
 admin.site.register(Payment, PaymentAdmin)
 admin.site.register(Bed, BedAdmin)
 admin.site.register(Patient, PatientAdmin)
