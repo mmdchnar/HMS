@@ -14,6 +14,11 @@ class PaymentInline(admin.TabularInline):
     extra = 0
 
 
+class BedInline(admin.TabularInline):
+    model = Bed
+    extra = 0
+
+
 class PatientAdmin(admin.ModelAdmin):
     search_fields = ('first_name', "last_name")
     list_display = ['__str__', 'sickness', 'doctor', 'nurse', 'debt', 'paid', 'login_at', 'bed']
@@ -88,6 +93,7 @@ class PatientAdmin(admin.ModelAdmin):
     inlines = [
         MedicineInline,
         PaymentInline,
+        BedInline,
     ]
 
     def debt(self, obj):
