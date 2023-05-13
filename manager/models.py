@@ -29,8 +29,8 @@ class Patient(models.Model):
     sickness = models.CharField(max_length=50)
     watchful_name = models.CharField(max_length=50)
     age = models.IntegerField(default=0)
-    height = models.IntegerField(default=0, verbose_name='Age(cm)')
-    weight = models.IntegerField(default=0, verbose_name='Weight(kg)')
+    height = models.IntegerField(default=0, verbose_name='Height (cm)')
+    weight = models.IntegerField(default=0, verbose_name='Weight (kg)')
     phone_number = models.CharField(
         max_length=13,
         default='+989120000000',
