@@ -76,6 +76,11 @@ class Patient(models.Model):
         related_name='nurse'
     )
     login_at = models.DateTimeField(auto_now_add=True)
+    is_hospitalized = models.BooleanField(default=True, verbose_name='Present')
+    discharge_date = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('is_hospitalized', 'national_id')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
