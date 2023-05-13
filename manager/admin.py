@@ -106,6 +106,18 @@ class PatientAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if change:
+            payments = Payment.objects.filter(patient__national_id=obj.national_id)
+            # total_debt = 0
+            # total_paid = 0
+            # for payment in payments:
+            #     if payment.is_paid:
+            #         total_paid += payment.cost
+            #     else:
+            #         total_debt += payment.cost
+
+            # if (total_debt*0.1) > total_paid:  #  Allow to quit if 10% of all payments are paid
+            if [payment for payment in payments if not payment.is_paid]:
+                obj.is_hospitalized = True
             if not obj.is_hospitalized:
                 try:
                     obj.bed.delete()
@@ -245,7 +257,7 @@ class BedAdmin(admin.ModelAdmin):
 
     @staticmethod
     def name(obj):
-        return obj.patient if obj.patient else '--------------------'
+        return obj.patient or '--------------------'
 
     is_filled_order.admin_order_field = 'is_filled_field'
 
