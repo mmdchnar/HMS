@@ -41,11 +41,16 @@ class PatientAdmin(admin.ModelAdmin):
         'doctor_order',
     ]
 
+    def get_list_display(self, request, obj=None):
+        if request.user.groups.filter(name__in=['Doctors', 'Nurses']):
+            return [display for display in self.list_display
+                    if display not in ['debt', 'paid', 'login_at', 'discharge_date']]
+        else:
+            return self.list_display
+
     def get_fields(self, request, obj=None):
         if request.user.groups.filter(name__in=['Doctors', 'Nurses']):
             self.fields = [field for field in self.fields if field not in ['national_id', 'phone_number', 'address']]
-            self.list_display = [display for display in self.list_display if
-                                 display not in ['debt', 'paid', 'login_at']]
 
         return super(PatientAdmin, self).get_fields(request, obj)
 
