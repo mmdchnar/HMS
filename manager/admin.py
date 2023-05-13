@@ -31,6 +31,7 @@ class PatientAdmin(admin.ModelAdmin):
     search_fields = ('first_name', "last_name")
     list_display = ['__str__', 'sickness', 'doctor', 'nurse', 'debt', 'paid', 'login_at', 'bed']
     fields = [
+        'is_hospitalized',
         'first_name',
         'last_name',
         'sickness',
