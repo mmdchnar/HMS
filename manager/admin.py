@@ -29,7 +29,18 @@ class BedInline(admin.TabularInline):
 
 class PatientAdmin(admin.ModelAdmin):
     search_fields = ('first_name', "last_name")
-    list_display = ['__str__', 'sickness', 'doctor', 'nurse', 'debt', 'paid', 'login_at', 'bed']
+    list_display = [
+        '__str__',
+        'sickness',
+        'doctor',
+        'nurse',
+        'debt',
+        'paid',
+        'custom_login_at',
+        'custom_discharge_date',
+        'bed',
+        'is_hospitalized',
+    ]
     fields = [
         'is_hospitalized',
         'first_name',
@@ -49,6 +60,19 @@ class PatientAdmin(admin.ModelAdmin):
         'doctor',
         'doctor_order',
     ]
+
+    def custom_login_at(self, obj):
+        return obj.login_at.strftime('%y/%m/%d %H:%M')
+
+    custom_login_at.short_description = 'Login'
+
+    def custom_discharge_date(self, obj):
+        if obj.discharge_date:
+            return obj.discharge_date.strftime('%y/%m/%d %H:%M')
+        else:
+            return '-'
+
+    custom_discharge_date.short_description = 'Discharge'
 
     def has_change_permission(self, request, obj=None):
         if obj and not obj.is_hospitalized and not request.user.is_superuser:
