@@ -87,9 +87,26 @@ class Patient(models.Model):
 
 
 class Bed(models.Model):
-    floor = models.IntegerField(default=1, verbose_name='Floor (0 for ICU)')
-    room = models.IntegerField(default=1)
-    bed = models.IntegerField(default=1)
+    floors = [
+        (0, 'ICU'),
+        (1, '1'),
+        (2, '2'),
+    ]
+    floor = models.IntegerField(default=1, verbose_name='Floor (0 for ICU)', choices=floors)
+    rooms = [
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+    ]
+    room = models.IntegerField(default=1, choices=rooms)
+    beds = [
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+    ]
+    bed = models.IntegerField(default=1, choices=beds)
     patient = models.OneToOneField(Patient, models.CASCADE, null=True, blank=True)
 
     def __str__(self):
