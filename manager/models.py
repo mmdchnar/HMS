@@ -57,8 +57,8 @@ class Patient(models.Model):
         ('7', 'AB-'),
     ]
     blood_type = models.CharField(max_length=10, choices=blood_types)
-    doctor_order = models.TextField()
-    nurse_report = models.TextField()
+    doctor_order = models.TextField(blank=True)
+    nurse_report = models.TextField(blank=True)
     doctor = models.ForeignKey(
         CustomUser,
         models.CASCADE,
