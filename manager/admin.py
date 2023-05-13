@@ -136,6 +136,8 @@ class PatientAdmin(admin.ModelAdmin):
                            'weight',
                            'doctor',
                            'nurse',
+                           'is_hospitalized',
+                           'discharge_date',
                            ]
         if request.user.is_superuser:
             return []
@@ -148,9 +150,13 @@ class PatientAdmin(admin.ModelAdmin):
                 readonly_fields.remove('weight')
             if 'Doctors' in user_groups:
                 readonly_fields.remove('doctor_order')
-            if 'Nurses' in user_groups:
+                if request.user != obj.doctor:
+                    readonly_fields = self.fields
+            elif 'Nurses' in user_groups:
                 readonly_fields.remove('nurse_report')
-            if 'Managers' in user_groups:
+                if request.user != obj.nurse:
+                    readonly_fields = self.fields
+            elif 'Managers' in user_groups:
                 readonly_fields = [
                     field for field in readonly_fields
                     if field not in [
@@ -160,7 +166,10 @@ class PatientAdmin(admin.ModelAdmin):
                         'watchful_name',
                         'age',
                         'doctor',
-                        'nurse']]
+                        'nurse',
+                        'is_hospitalized',
+                        'discharge_date',
+                    ]]
         return readonly_fields
 
     inlines = [
