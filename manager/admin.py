@@ -104,6 +104,18 @@ class PatientAdmin(admin.ModelAdmin):
 
         return formfield
 
+    def save_model(self, request, obj, form, change):
+        if change:
+            if not obj.is_hospitalized:
+                try:
+                    obj.bed.delete()
+                except ObjectDoesNotExist:
+                    pass
+                obj.discharge_date = datetime.now(tz=timezone(settings.TIME_ZONE))
+            elif obj.is_hospitalized:
+                obj.discharge_date = None
+        super().save_model(request, obj, form, change)
+
     def has_change_permission(self, request, obj=None):
         if obj and not obj.is_hospitalized and not request.user.is_superuser:
             return False
