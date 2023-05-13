@@ -8,6 +8,14 @@ class MedicineInline(admin.TabularInline):
     model = Medicine
     extra = 0
 
+    def has_add_permission(self, request, obj=None):
+        if obj and request.user != obj.doctor and not request.user.is_superuser:
+            return False
+        return super().has_add_permission(request, obj)
+
+    has_change_permission = has_add_permission
+    has_delete_permission = has_add_permission
+
 
 class PaymentInline(admin.TabularInline):
     model = Payment
