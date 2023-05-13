@@ -50,6 +50,11 @@ class PatientAdmin(admin.ModelAdmin):
         'doctor_order',
     ]
 
+    def has_change_permission(self, request, obj=None):
+        if obj and not obj.is_hospitalized and not request.user.is_superuser:
+            return False
+        return super().has_change_permission(request, obj)
+
     def get_list_display(self, request, obj=None):
         if request.user.groups.filter(name__in=['Doctors', 'Nurses']):
             return [display for display in self.list_display
