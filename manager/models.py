@@ -21,7 +21,7 @@ class Patient(models.Model):
         unique=True,
         verbose_name='National ID',
         validators=[
-            RegexValidator(r'^\d{10}$', message='Only digits are allowed.')
+            RegexValidator(r'^\d{10}$', message='Only digits(10) are allowed.')
         ]
     )
     first_name = models.CharField(max_length=50)
@@ -78,6 +78,12 @@ class Patient(models.Model):
     login_at = models.DateTimeField(auto_now_add=True)
     is_hospitalized = models.BooleanField(default=True, verbose_name='Present')
     discharge_date = models.DateTimeField(null=True, blank=True)
+
+    def clean(self):
+        if not self.is_hospitalized:
+            payments = Payment.objects.filter(patient=self)
+            if [payment for payment in payments if not payment.is_paid]:
+                raise ValidationError(_('The payments not made!'))
 
     class Meta:
         unique_together = ('is_hospitalized', 'national_id')
