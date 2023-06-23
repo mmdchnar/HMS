@@ -264,10 +264,10 @@ class PaymentAdmin(admin.ModelAdmin):
             'patient',
             'title',
             'cost',
-            'is_paid',
+            'paid',
         ], }),)
 
-    list_display = ('patient', 'title', 'cost', 'is_paid')
+    list_display = ('patient', 'title', 'cost', 'paid')
 
 
 class CustomUserAdmin(UserAdmin):
