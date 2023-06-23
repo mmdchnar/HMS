@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from pytz import timezone
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import F
 
 
 class MedicineInline(admin.TabularInline):
@@ -190,17 +191,17 @@ class PatientAdmin(admin.ModelAdmin):
     ]
 
     def debt(self, obj):
-        unpaid_payments = obj.payment_set.filter(is_paid=False)
-        total_amount = sum(payment.cost for payment in unpaid_payments)
-        return format_html(f'<b style="color: red">{total_amount or "-"}</b>')
+        unpaid_payments = obj.payment_set.filter(cost__gt=F('paid'))
+        total_amount = sum((payment.cost - payment.paid) for payment in unpaid_payments)
+        return format_html(f'<a href="/invoice/{obj.national_id}"><u style="color: red">${total_amount}</u></a>')
 
     debt.short_description = 'Debt'
     debt.allow_tag = True
 
     def paid(self, obj):
-        paid_payments = obj.payment_set.filter(is_paid=True)
-        total_amount = sum(payment.cost for payment in paid_payments)
-        return format_html(f'<b style="color: green">{total_amount or "-"}</b>')
+        paid_payments = obj.payment_set.all()
+        total_amount = sum(payment.paid for payment in paid_payments)
+        return format_html(f'<a href="/invoice/{obj.national_id}"><u style="color: green">${total_amount}</u></a>')
 
     paid.short_description = 'Paid'
     paid.allow_tag = True
