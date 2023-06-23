@@ -133,7 +133,11 @@ class Payment(models.Model):
     patient = models.ForeignKey(Patient, models.CASCADE)
     title = models.CharField(max_length=50)
     cost = models.BigIntegerField(default=0)
-    is_paid = models.BooleanField(default=False)
+    paid = models.BigIntegerField(default=0)
+
+    def clean(self):
+        if self.paid > self.cost:
+            raise ValidationError(_('Can not pay more than cost!'))
 
     def __str__(self):
         return self.title
